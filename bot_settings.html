@@ -280,9 +280,17 @@
 
         .choice-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 12px;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 10px;
             margin-top: 16px;
+        }
+
+        .choice-grid.three-items {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .choice-grid.two-items {
+            grid-template-columns: repeat(2, 1fr);
         }
 
         .choice-btn {
@@ -407,7 +415,49 @@
             }
             
             .choice-grid {
+                grid-template-columns: repeat(auto-fit, minmax(85px, 1fr));
+                gap: 8px;
+            }
+
+            .choice-grid.three-items {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .choice-grid.two-items {
                 grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .choice-btn {
+                padding: 12px 8px;
+                font-size: 0.8rem;
+                min-height: 60px;
+                gap: 6px;
+            }
+
+            .choice-icon {
+                font-size: 1.2rem;
+            }
+
+            .input-field, .textarea-field {
+                font-size: 16px; /* Prevents zoom on iOS */
+            }
+        }
+
+        @media (max-width: 360px) {
+            .choice-grid {
+                grid-template-columns: repeat(auto-fit, minmax(75px, 1fr));
+                gap: 6px;
+            }
+
+            .choice-btn {
+                padding: 10px 6px;
+                font-size: 0.75rem;
+                min-height: 55px;
+                gap: 4px;
+            }
+
+            .choice-icon {
+                font-size: 1.1rem;
             }
         }
     </style>
@@ -443,7 +493,7 @@
             
             <div class="form-group">
                 <label class="form-label">Длина сообщений</label>
-                <div class="choice-grid">
+                <div class="choice-grid three-items">
                     <button class="choice-btn" data-value="short" data-group="messageLength">
                         <span class="choice-icon">📝</span>
                         <span>Короткая</span>
@@ -469,7 +519,7 @@
             
             <div class="form-group">
                 <label class="form-label">Допуск второстепенных персонажей</label>
-                <div class="choice-grid">
+                <div class="choice-grid three-items">
                     <button class="choice-btn" data-value="forbidden" data-group="secondaryCharacters">
                         <span class="choice-icon">🚫</span>
                         <span>Запрещено</span>
@@ -495,7 +545,7 @@
             
             <div class="form-group">
                 <label class="form-label">Как ведёт себя персонаж</label>
-                <div class="choice-grid">
+                <div class="choice-grid three-items">
                     <button class="choice-btn" data-value="leads" data-group="involvement">
                         <span class="choice-icon">🏃‍♂️</span>
                         <span>Ведёт за собой</span>
@@ -521,7 +571,7 @@
             
             <div class="form-group">
                 <label class="form-label">Предсказуемость</label>
-                <div class="choice-grid">
+                <div class="choice-grid three-items">
                     <button class="choice-btn" data-value="predictable" data-group="plotPredictability">
                         <span class="choice-icon">🎯</span>
                         <span>Предсказуемый</span>
@@ -539,7 +589,7 @@
 
             <div class="form-group">
                 <label class="form-label">Насыщенность событиями</label>
-                <div class="choice-grid">
+                <div class="choice-grid three-items">
                     <button class="choice-btn" data-value="calm" data-group="plotIntensity">
                         <span class="choice-icon">🌸</span>
                         <span>Спокойный</span>
@@ -585,7 +635,7 @@
             
             <div class="form-group">
                 <label class="form-label">Инициативность персонажа</label>
-                <div class="choice-grid">
+                <div class="choice-grid three-items">
                     <button class="choice-btn" data-value="pulls" data-group="initiative">
                         <span class="choice-icon">🚀</span>
                         <span>Тянет за собой</span>
@@ -603,7 +653,7 @@
 
             <div class="form-group">
                 <label class="form-label">Уровень романтики</label>
-                <div class="choice-grid">
+                <div class="choice-grid three-items">
                     <button class="choice-btn" data-value="light" data-group="romance">
                         <span class="choice-icon">🌸</span>
                         <span>Лёгкий</span>
