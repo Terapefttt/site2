@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Настройки Персонажа</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #ff6b6b;
+            --secondary-color: #4ecdc4;
+            --accent-color: #ffe66d;
+            --background-dark: #1a1a2e;
+            --surface-color: rgba(255, 255, 255, 0.1);
+            --text-primary: #ffffff;
+            --text-secondary: #b8b8b8;
+            --success-color: #51cf66;
+            --warning-color: #ffa726;
+            --glow-primary: rgba(255, 107, 107, 0.4);
+            --glow-secondary: rgba(78, 205, 196, 0.4);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            overscroll-behavior: none;
+            -webkit-tap-highlight-color: transparent;
+            overflow-x: hidden;
+        }
+
+        #floating-objects {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .floating-object {
+            position: absolute;
+            opacity: 0;
+            animation: float 16s infinite ease-in-out;
+        }
+
+        .floating-object.tiny {
+            font-size: 18px;
+            filter: blur(2px);
+        }
+
+        .floating-object.small {
+            font-size: 28px;
+            filter: blur(1.5px);
+        }
+
+        .floating-object.medium {
+            font-size: 38px;
+            filter: blur(1px);
+        }
+
+        .floating-object.large {
+            font-size: 48px;
+            filter: blur(0.5px);
+        }
+
+        .floating-object.huge {
+            font-size: 58px;
+            filter: blur(0px);
+        }
+
+        .floating-object.far {
+            font-size: 22px;
+            filter: blur(3px);
+        }
+
+        @keyframes float {
+            0% { 
+                transform: translateY(100vh) translateX(0px) rotate(0deg) scale(0.3); 
+                opacity: 0; 
+            }
+            3% { 
+                opacity: 0.4; 
+            }
+            8% { 
+                opacity: 0.7; 
+            }
+            15% { 
+                transform: translateY(85vh) translateX(var(--drift-x, 20px)) rotate(45deg) scale(0.6); 
+                opacity: 0.85; 
+            }
+            30% { 
+                transform: translateY(70vh) translateX(calc(var(--drift-x, 20px) * 1.2)) rotate(120deg) scale(0.9); 
+                opacity: 0.95; 
+            }
+            50% { 
+                transform: translateY(50vh) translateX(calc(var(--drift-x, 20px) * 1.5)) rotate(180deg) scale(1); 
+                opacity: 1; 
+            }
+            70% { 
+                transform: translateY(30vh) translateX(calc(var(--drift-x, 20px) * 1.2)) rotate(240deg) scale(0.95); 
+                opacity: 0.9; 
+            }
+            85% { 
+                transform: translateY(15vh) translateX(calc(var(--drift-x, 20px) * 0.8)) rotate(300deg) scale(0.7); 
+                opacity: 0.7; 
+            }
+            92% { 
+                opacity: 0.5; 
+            }
+            97% { 
+                opacity: 0.2; 
+            }
+            100% { 
+                transform: translateY(-100px) translateX(calc(var(--drift-x, 20px) * -0.5)) rotate(360deg) scale(0.1); 
+                opacity: 0; 
+            }
+        }
+
+        .main-container {
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 20px;
+            padding-bottom: 120px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px 0;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            font-weight: 400;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 24px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .card-icon {
+            font-size: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            font-size: 1rem;
+        }
+
+        .input-field {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            padding: 16px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px var(--glow-primary);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .input-field::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .textarea-field {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .slider-container {
+            margin: 20px 0;
+        }
+
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .slider-value {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 8px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+            position: relative;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            cursor: pointer;
+            box-shadow: 0 4px 12px var(--glow-primary);
+            transition: transform 0.2s ease;
+        }
+
+        .slider::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+        }
+
+        .choice-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .choice-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-primary);
+            padding: 16px 12px;
+            border-radius: 16px;
+            cursor: pointer;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            min-height: 70px;
+            justify-content: center;
+        }
+
+        .choice-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .choice-btn.selected {
+            border-color: transparent;
+            color: #fff;
+            font-weight: 600;
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(255, 255, 255, 0.3);
+        }
+
+        /* Градиенты для разных групп */
+        .choice-btn.selected[data-group="messageLength"] {
+            background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+        }
+        .choice-btn.selected[data-group="secondaryCharacters"] {
+            background: linear-gradient(45deg, #ff8e8e, #ffa8a8);
+        }
+        .choice-btn.selected[data-group="involvement"] {
+            background: linear-gradient(45deg, #ffa8a8, #ffc2c2);
+        }
+        .choice-btn.selected[data-group="plotPredictability"] {
+            background: linear-gradient(45deg, #ffc2c2, #ffdbdb);
+        }
+        .choice-btn.selected[data-group="plotIntensity"] {
+            background: linear-gradient(45deg, #ffdbdb, #4ecdc4);
+        }
+        .choice-btn.selected[data-group="initiative"] {
+            background: linear-gradient(45deg, #4ecdc4, #6dd4cd);
+        }
+        .choice-btn.selected[data-group="romance"] {
+            background: linear-gradient(45deg, #6dd4cd, #8bdcd6);
+        }
+
+        .choice-icon {
+            font-size: 1.5rem;
+        }
+
+        .personality-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .save-button {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 40px);
+            max-width: 440px;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            border-radius: 20px;
+            padding: 18px;
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px var(--glow-primary);
+            z-index: 100;
+        }
+
+        .save-button:hover {
+            transform: translateX(-50%) translateY(-2px);
+            box-shadow: 0 12px 35px var(--glow-primary);
+        }
+
+        .save-button:active {
+            transform: translateX(-50%) translateY(0px) scale(0.98);
+        }
+
+        .info-text {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-top: 8px;
+            line-height: 1.4;
+        }
+
+        .premium-badge {
+            background: linear-gradient(45deg, #ffd700, #ffed4e);
+            color: #000;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-block;
+            margin-left: 8px;
+        }
+
+        @media (max-width: 480px) {
+            .main-container {
+                padding: 16px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .choice-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="floating-objects"></div>
+
+    <div class="main-container">
+        <div class="header">
+            <h1>✨ CharmyAI</h1>
+            <p>Тепло. История. Ты.</p>
+        </div>
+
+        <!-- Основная информация о персонаже -->
+        <div class="card">
+            <h2 class="card-title">
+                <span class="card-icon">👤</span>
+                Основная информация
+            </h2>
+            
+            <div class="form-group">
+                <label class="form-label">Имя персонажа</label>
+                <input type="text" class="input-field" id="character-name" placeholder="Например: Алиса" maxlength="30">
+            </div>
+        </div>
+
+        <!-- Стиль общения -->
+        <div class="card">
+            <h2 class="card-title">
+                <span class="card-icon">💬</span>
+                Стиль общения
+            </h2>
+            
+            <div class="form-group">
+                <label class="form-label">Длина сообщений</label>
+                <div class="choice-grid">
+                    <button class="choice-btn" data-value="short" data-group="messageLength">
+                        <span class="choice-icon">📝</span>
+                        <span>Короткая</span>
+                    </button>
+                    <button class="choice-btn selected" data-value="medium" data-group="messageLength">
+                        <span class="choice-icon">📄</span>
+                        <span>Средняя</span>
+                    </button>
+                    <button class="choice-btn" data-value="long" data-group="messageLength">
+                        <span class="choice-icon">📖</span>
+                        <span>Длинная</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Персонажи -->
+        <div class="card">
+            <h2 class="card-title">
+                <span class="card-icon">👥</span>
+                Второстепенные персонажи
+            </h2>
+            
+            <div class="form-group">
+                <label class="form-label">Допуск второстепенных персонажей</label>
+                <div class="choice-grid">
+                    <button class="choice-btn" data-value="forbidden" data-group="secondaryCharacters">
+                        <span class="choice-icon">🚫</span>
+                        <span>Запрещено</span>
+                    </button>
+                    <button class="choice-btn selected" data-value="default" data-group="secondaryCharacters">
+                        <span class="choice-icon">🐈</span>
+                        <span>По умолчанию</span>
+                    </button>
+                    <button class="choice-btn" data-value="more" data-group="secondaryCharacters">
+                        <span class="choice-icon">👥</span>
+                        <span>Больше</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Вовлечённость -->
+        <div class="card">
+            <h2 class="card-title">
+                <span class="card-icon">🎯</span>
+                Степень вовлечённости
+            </h2>
+            
+            <div class="form-group">
+                <label class="form-label">Как ведёт себя персонаж</label>
+                <div class="choice-grid">
+                    <button class="choice-btn" data-value="leads" data-group="involvement">
+                        <span class="choice-icon">🏃‍♂️</span>
+                        <span>Ведёт за собой</span>
+                    </button>
+                    <button class="choice-btn selected" data-value="suggests" data-group="involvement">
+                        <span class="choice-icon">💡</span>
+                        <span>Предлагает варианты</span>
+                    </button>
+                    <button class="choice-btn" data-value="waits" data-group="involvement">
+                        <span class="choice-icon">🤔</span>
+                        <span>Ждёт инициативы</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Сюжет -->
+        <div class="card">
+            <h2 class="card-title">
+                <span class="card-icon">📚</span>
+                Сюжет
+            </h2>
+            
+            <div class="form-group">
+                <label class="form-label">Предсказуемость</label>
+                <div class="choice-grid">
+                    <button class="choice-btn" data-value="predictable" data-group="plotPredictability">
+                        <span class="choice-icon">🎯</span>
+                        <span>Предсказуемый</span>
+                    </button>
+                    <button class="choice-btn selected" data-value="balanced" data-group="plotPredictability">
+                        <span class="choice-icon">⚖️</span>
+                        <span>Баланс</span>
+                    </button>
+                    <button class="choice-btn" data-value="chaotic" data-group="plotPredictability">
+                        <span class="choice-icon">🌪️</span>
+                        <span>Хаотичный</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Насыщенность событиями</label>
+                <div class="choice-grid">
+                    <button class="choice-btn" data-value="calm" data-group="plotIntensity">
+                        <span class="choice-icon">🌸</span>
+                        <span>Спокойный</span>
+                    </button>
+                    <button class="choice-btn selected" data-value="default" data-group="plotIntensity">
+                        <span class="choice-icon">⚖️</span>
+                        <span>По умолчанию</span>
+                    </button>
+                    <button class="choice-btn" data-value="intense" data-group="plotIntensity">
+                        <span class="choice-icon">⚡</span>
+                        <span>Насыщенный</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Место действия, сеттинг</label>
+                <textarea class="input-field textarea-field" id="setting" placeholder="Опишите место и время действия вашей истории..." maxlength="150"></textarea>
+                <div class="info-text">Например: современный город, фэнтези мир, школа, офис...</div>
+            </div>
+        </div>
+
+        <!-- Роль пользователя -->
+        <div class="card">
+            <h2 class="card-title">
+                <span class="card-icon">🎭</span>
+                Ваша роль
+            </h2>
+            
+            <div class="form-group">
+                <label class="form-label">Роль пользователя</label>
+                <input type="text" class="input-field" id="userRole" placeholder="Например: студент, детектив, принц..." maxlength="100">
+                <div class="info-text">Кем вы являетесь в этой истории?</div>
+            </div>
+        </div>
+
+        <!-- Поведение персонажа -->
+        <div class="card">
+            <h2 class="card-title">
+                <span class="card-icon">⚡</span>
+                Поведение персонажа
+            </h2>
+            
+            <div class="form-group">
+                <label class="form-label">Инициативность персонажа</label>
+                <div class="choice-grid">
+                    <button class="choice-btn" data-value="pulls" data-group="initiative">
+                        <span class="choice-icon">🚀</span>
+                        <span>Тянет за собой</span>
+                    </button>
+                    <button class="choice-btn selected" data-value="balance" data-group="initiative">
+                        <span class="choice-icon">⚖️</span>
+                        <span>Баланс</span>
+                    </button>
+                    <button class="choice-btn" data-value="reacts" data-group="initiative">
+                        <span class="choice-icon">🤝</span>
+                        <span>Реагирует на тебя</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Уровень романтики</label>
+                <div class="choice-grid">
+                    <button class="choice-btn" data-value="light" data-group="romance">
+                        <span class="choice-icon">🌸</span>
+                        <span>Лёгкий</span>
+                    </button>
+                    <button class="choice-btn selected" data-value="medium" data-group="romance">
+                        <span class="choice-icon">💕</span>
+                        <span>Средний</span>
+                    </button>
+                    <button class="choice-btn" data-value="maximum" data-group="romance">
+                        <span class="choice-icon">❤️‍🔥</span>
+                        <span>Максимальный</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button class="save-button" id="save-settings">
+        💾 Сохранить настройки
+    </button>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Floating objects animation
+            const floatingEmojis = [
+                '💕', '✨', '🌸', '🦋', '💫', '🌺', '🌷', '🌻', 
+                '🌹', '💖', '💝', '🎀', '👑', '💍', '🔮', '🌙',
+                '⭐', '🌟', '💎', '🦄', '🎭', '🌈', '🍓', '🍑'
+            ];
+
+            const colorPalette = [
+                '#ff6b6b', '#ff8e8e', '#ffa8a8', '#ffc2c2', 
+                '#ffdbdb', '#4ecdc4', '#6dd4cd', '#8bdcd6',
+                '#ffe66d', '#ff9ff3', '#f368e0', '#ff7675'
+            ];
+
+            function createFloatingObject() {
+                const object = document.createElement('div');
+                const emoji = floatingEmojis[Math.floor(Math.random() * floatingEmojis.length)];
+                const color = colorPalette[Math.floor(Math.random() * colorPalette.length)];
+                
+                // Случайный размер с эффектом глубины
+                const sizes = ['tiny', 'far', 'small', 'medium', 'large', 'huge'];
+                const size = sizes[Math.floor(Math.random() * sizes.length)];
+                
+                object.className = `floating-object ${size}`;
+                object.innerHTML = emoji;
+                object.style.left = Math.random() * 100 + '%';
+                object.style.color = color;
+                object.style.animationDelay = Math.random() * 6 + 's';
+                object.style.animationDuration = (14 + Math.random() * 8) + 's';
+                
+                // Добавляем случайное движение по X
+                const drift = (Math.random() - 0.5) * 100;
+                object.style.setProperty('--drift-x', drift + 'px');
+                
+                document.getElementById('floating-objects').appendChild(object);
+
+                setTimeout(() => {
+                    object.remove();
+                }, 24000);
+            }
+
+            // Create objects periodically
+            setInterval(createFloatingObject, 1800);
+            for (let i = 0; i < 12; i++) {
+                setTimeout(createFloatingObject, i * 400);
+            }
+
+            // Form data
+            const formData = {
+                characterName: '',
+                messageLength: 'medium',
+                secondaryCharacters: 'default',
+                involvement: 'suggests',
+                plotPredictability: 'balanced',
+                plotIntensity: 'default',
+                setting: '',
+                userRole: '',
+                initiative: 'balance',
+                romance: 'medium'
+            };
+
+            // Text inputs
+            document.getElementById('character-name').addEventListener('input', (e) => {
+                formData.characterName = e.target.value;
+            });
+
+            document.getElementById('setting').addEventListener('input', (e) => {
+                formData.setting = e.target.value;
+            });
+
+            document.getElementById('userRole').addEventListener('input', (e) => {
+                formData.userRole = e.target.value;
+            });
+
+            // Choice buttons
+            document.querySelectorAll('.choice-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const clickedBtn = e.target.closest('.choice-btn');
+                    const group = clickedBtn.dataset.group;
+                    const value = clickedBtn.dataset.value;
+                    
+                    if (group) {
+                        // Remove selected from all buttons in the same group
+                        document.querySelectorAll(`[data-group="${group}"]`).forEach(b => {
+                            b.classList.remove('selected');
+                        });
+                        
+                        // Add selected to clicked button
+                        clickedBtn.classList.add('selected');
+                        
+                        // Update form data
+                        formData[group] = value;
+                    }
+                });
+            });
+
+
+
+            // Save button
+            document.getElementById('save-settings').addEventListener('click', async () => {
+                const saveBtn = document.getElementById('save-settings');
+                const originalText = saveBtn.textContent;
+                
+                saveBtn.textContent = '💫 Сохраняем...';
+                saveBtn.style.opacity = '0.7';
+                
+                try {
+                    // Here you would send the data to your backend
+                    console.log('Saving settings:', formData);
+                    
+                    // Simulate API call
+                    await new Promise(resolve => setTimeout(resolve, 1500));
+                    
+                    saveBtn.textContent = '✅ Сохранено!';
+                    saveBtn.style.background = 'linear-gradient(45deg, var(--success-color), var(--secondary-color))';
+                    
+                    setTimeout(() => {
+                        saveBtn.textContent = originalText;
+                        saveBtn.style.background = 'linear-gradient(45deg, var(--primary-color), var(--secondary-color))';
+                        saveBtn.style.opacity = '1';
+                        
+                        // Close the web app
+                        if (window.Telegram && window.Telegram.WebApp) {
+                            window.Telegram.WebApp.close();
+                        }
+                    }, 2000);
+                    
+                } catch (error) {
+                    saveBtn.textContent = '❌ Ошибка';
+                    saveBtn.style.background = 'linear-gradient(45deg, #ff6b6b, #ee5a52)';
+                    
+                    setTimeout(() => {
+                        saveBtn.textContent = originalText;
+                        saveBtn.style.background = 'linear-gradient(45deg, var(--primary-color), var(--secondary-color))';
+                        saveBtn.style.opacity = '1';
+                    }, 2000);
+                }
+            });
+
+            // Initialize Telegram Web App
+            if (window.Telegram && window.Telegram.WebApp) {
+                window.Telegram.WebApp.ready();
+                window.Telegram.WebApp.expand();
+            }
+        });
+    </script>
+</body>
+</html> 
