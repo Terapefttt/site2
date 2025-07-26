@@ -765,6 +765,31 @@
                 }
             });
 
+            // Hide keyboard when clicking on empty area
+            document.addEventListener('click', (e) => {
+                // Check if click target is not an input field
+                if (!e.target.matches('input, textarea, .choice-btn, button, .card')) {
+                    // Remove focus from any active input
+                    const activeElement = document.activeElement;
+                    if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
+                        activeElement.blur();
+                    }
+                }
+            });
+
+            // Also handle touch events for better mobile support
+            document.addEventListener('touchstart', (e) => {
+                if (!e.target.matches('input, textarea, .choice-btn, button, .card')) {
+                    const activeElement = document.activeElement;
+                    if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
+                        // Small delay to allow the touch to register properly
+                        setTimeout(() => {
+                            activeElement.blur();
+                        }, 100);
+                    }
+                }
+            });
+
             // Initialize Telegram Web App
             if (window.Telegram && window.Telegram.WebApp) {
                 window.Telegram.WebApp.ready();
