@@ -883,12 +883,27 @@
 
 
             // API Configuration 
-            const API_BASE_URL = 'http://192.168.31.47:8080';  // IP вашего сервера
+            const API_BASE_URL = 'http://217.198.5.160:8080';  // IP вашего сервера
             
             // Функции для модального окна ошибок
             function showError(title, details) {
-                document.getElementById('error-details').textContent = details;
-                document.getElementById('error-modal').style.display = 'flex';
+                const errorDetailsEl = document.getElementById('error-details');
+                const errorModalEl = document.getElementById('error-modal');
+                
+                if (!errorDetailsEl) {
+                    console.error('❌ Элемент error-details не найден!');
+                    console.error('Ошибка:', title, details);
+                    return;
+                }
+                
+                if (!errorModalEl) {
+                    console.error('❌ Элемент error-modal не найден!');
+                    console.error('Ошибка:', title, details);
+                    return;
+                }
+                
+                errorDetailsEl.textContent = details;
+                errorModalEl.style.display = 'flex';
             }
 
             function closeErrorModal() {
@@ -900,9 +915,23 @@
             let initData = null;
             
             function updateUserInfo() {
+                console.log('🔍 Поиск элементов User Info...');
+                
                 const userIdEl = document.getElementById('user-id');
                 const userNameEl = document.getElementById('user-name');
                 const webappStatusEl = document.getElementById('webapp-status');
+                
+                console.log('Элементы найдены:', {
+                    userIdEl: !!userIdEl,
+                    userNameEl: !!userNameEl,
+                    webappStatusEl: !!webappStatusEl
+                });
+                
+                if (!userIdEl || !userNameEl || !webappStatusEl) {
+                    console.error('❌ Не найдены элементы User Info в DOM!');
+                    console.error('HTML возможно еще не загружен');
+                    return;
+                }
                 
                 if (window.Telegram && window.Telegram.WebApp) {
                     currentUser = window.Telegram.WebApp.initDataUnsafe.user;
@@ -943,8 +972,16 @@
                 }
             }
             
-            // Обновляем информацию о пользователе
-            updateUserInfo();
+            // Ждем загрузки DOM перед обновлением информации о пользователе
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', function() {
+                    console.log('📄 DOM загружен, обновляем User Info...');
+                    updateUserInfo();
+                });
+            } else {
+                console.log('📄 DOM уже загружен, обновляем User Info...');
+                updateUserInfo();
+            }
 
             // Проверка доступности API сервера при загрузке
             async function checkApiConnection() {
@@ -1019,8 +1056,8 @@
                 }
             }
 
-            // Проверяем подключение при загрузке
-            setTimeout(() => {
+            // Проверяем подключение после загрузки DOM
+            function startTests() {
                 console.log('🚀 Запускаем проверку соединения...');
                 checkApiConnection();
                 
@@ -1029,7 +1066,15 @@
                     console.log('🚀 Запускаем тестовый POST запрос...');
                     testPostRequest();
                 }, 2000);
-            }, 1000);
+            }
+            
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', function() {
+                    setTimeout(startTests, 1000);
+                });
+            } else {
+                setTimeout(startTests, 1000);
+            }
 
             // Save button
             document.getElementById('save-settings').addEventListener('click', async () => {
