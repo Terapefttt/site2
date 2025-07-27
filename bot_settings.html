@@ -722,7 +722,7 @@
                 <span class="card-icon">⚡</span>
                 Поведение персонажа
             </h2>
-            
+
             <div class="form-group">
                 <label class="form-label">Уровень романтики</label>
                 <div class="choice-grid three-items">
@@ -883,27 +883,12 @@
 
 
             // API Configuration 
-            const API_BASE_URL = 'http://217.198.5.160:8080';  // IP вашего сервера
+            const API_BASE_URL = 'http://192.168.31.47:8080';  // IP вашего сервера
             
             // Функции для модального окна ошибок
             function showError(title, details) {
-                const errorDetailsEl = document.getElementById('error-details');
-                const errorModalEl = document.getElementById('error-modal');
-                
-                if (!errorDetailsEl) {
-                    console.error('❌ Элемент error-details не найден!');
-                    console.error('Ошибка:', title, details);
-                    return;
-                }
-                
-                if (!errorModalEl) {
-                    console.error('❌ Элемент error-modal не найден!');
-                    console.error('Ошибка:', title, details);
-                    return;
-                }
-                
-                errorDetailsEl.textContent = details;
-                errorModalEl.style.display = 'flex';
+                document.getElementById('error-details').textContent = details;
+                document.getElementById('error-modal').style.display = 'flex';
             }
 
             function closeErrorModal() {
@@ -915,23 +900,9 @@
             let initData = null;
             
             function updateUserInfo() {
-                console.log('🔍 Поиск элементов User Info...');
-                
                 const userIdEl = document.getElementById('user-id');
                 const userNameEl = document.getElementById('user-name');
                 const webappStatusEl = document.getElementById('webapp-status');
-                
-                console.log('Элементы найдены:', {
-                    userIdEl: !!userIdEl,
-                    userNameEl: !!userNameEl,
-                    webappStatusEl: !!webappStatusEl
-                });
-                
-                if (!userIdEl || !userNameEl || !webappStatusEl) {
-                    console.error('❌ Не найдены элементы User Info в DOM!');
-                    console.error('HTML возможно еще не загружен');
-                    return;
-                }
                 
                 if (window.Telegram && window.Telegram.WebApp) {
                     currentUser = window.Telegram.WebApp.initDataUnsafe.user;
@@ -972,16 +943,8 @@
                 }
             }
             
-            // Ждем загрузки DOM перед обновлением информации о пользователе
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', function() {
-                    console.log('📄 DOM загружен, обновляем User Info...');
-                    updateUserInfo();
-                });
-            } else {
-                console.log('📄 DOM уже загружен, обновляем User Info...');
-                updateUserInfo();
-            }
+            // Обновляем информацию о пользователе
+            updateUserInfo();
 
             // Проверка доступности API сервера при загрузке
             async function checkApiConnection() {
@@ -1056,8 +1019,8 @@
                 }
             }
 
-            // Проверяем подключение после загрузки DOM
-            function startTests() {
+            // Проверяем подключение при загрузке
+            setTimeout(() => {
                 console.log('🚀 Запускаем проверку соединения...');
                 checkApiConnection();
                 
@@ -1066,20 +1029,40 @@
                     console.log('🚀 Запускаем тестовый POST запрос...');
                     testPostRequest();
                 }, 2000);
-            }
-            
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', function() {
-                    setTimeout(startTests, 1000);
-                });
-            } else {
-                setTimeout(startTests, 1000);
+            }, 1000);
+
+            // Проверяем что formData заполнена
+            function checkFormData() {
+                console.log('🔍 Проверка formData:', formData);
+                console.log('🔍 Количество настроек:', Object.keys(formData).length);
+                
+                if (Object.keys(formData).length === 0) {
+                    console.warn('⚠️ formData пустая! Устанавливаем значения по умолчанию...');
+                    // Заполняем значения по умолчанию
+                    formData = {
+                        characterName: 'Тестовый персонаж',
+                        messageLength: 'medium',
+                        secondaryCharacters: 'default',
+                        involvement: 'suggests',
+                        plotPredictability: 'balanced',
+                        plotIntensity: 'default',
+                        setting: 'Тестовое место',
+                        userRole: 'Тестовая роль',
+                        romance: 'maximum'
+                    };
+                    console.log('🔧 Установлена тестовая formData:', formData);
+                }
             }
 
             // Save button
             document.getElementById('save-settings').addEventListener('click', async () => {
+                console.log('🔥 === КЛИК ПО КНОПКЕ СОХРАНЕНИЯ ===');
+                
                 const saveBtn = document.getElementById('save-settings');
                 const originalText = saveBtn.textContent;
+                
+                // Проверяем formData перед отправкой
+                checkFormData();
                 
                 saveBtn.textContent = '💫 Сохраняем...';
                 saveBtn.style.opacity = '0.7';
@@ -1114,15 +1097,22 @@
                     console.log('- Пользователь:', currentUser.first_name, '(ID:', currentUser.id, ')');
                     console.log('- Настройки:', formData);
                     console.log('- initData длина:', initData.length, 'символов');
+                    console.log('- Полные данные запроса:', requestData);
+                    console.log('- URL запроса:', `${API_BASE_URL}/api/settings`);
                     
                     // Отправляем POST запрос на сервер
+                    console.log('🚀 Отправляем fetch запрос...');
                     const response = await fetch(`${API_BASE_URL}/api/settings`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'User-Agent': 'TelegramWebApp-Save'
                         },
                         body: JSON.stringify(requestData)
                     });
+                    
+                    console.log('📡 Получен ответ от сервера:', response.status, response.statusText);
                     
                     if (!response.ok) {
                         const errorText = await response.text();
@@ -1132,20 +1122,20 @@
                     const result = await response.json();
                     
                     if (result.success) {
-                        saveBtn.textContent = '✅ Сохранено!';
-                        saveBtn.style.background = 'linear-gradient(45deg, var(--success-color), var(--secondary-color))';
+                    saveBtn.textContent = '✅ Сохранено!';
+                    saveBtn.style.background = 'linear-gradient(45deg, var(--success-color), var(--secondary-color))';
                         console.log('✅ Настройки успешно сохранены для пользователя:', result.user_id);
+                    
+                    setTimeout(() => {
+                        saveBtn.textContent = originalText;
+                        saveBtn.style.background = 'linear-gradient(45deg, var(--primary-color), var(--secondary-color))';
+                        saveBtn.style.opacity = '1';
                         
-                        setTimeout(() => {
-                            saveBtn.textContent = originalText;
-                            saveBtn.style.background = 'linear-gradient(45deg, var(--primary-color), var(--secondary-color))';
-                            saveBtn.style.opacity = '1';
-                            
-                            // Close the web app
-                            if (window.Telegram && window.Telegram.WebApp) {
-                                window.Telegram.WebApp.close();
-                            }
-                        }, 2000);
+                        // Close the web app
+                        if (window.Telegram && window.Telegram.WebApp) {
+                            window.Telegram.WebApp.close();
+                        }
+                    }, 2000);
                     } else {
                         throw new Error(result.error || 'Неизвестная ошибка сервера');
                     }
