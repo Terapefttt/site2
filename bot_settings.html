@@ -29,24 +29,67 @@
             padding: 0;
         }
 
-        body {
+        html {
+            height: 100%;
+            min-height: 100vh;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             background-attachment: fixed;
             background-repeat: no-repeat;
-            background-size: cover;
+            background-size: 100% 100%;
+            overscroll-behavior: none;
+            -webkit-overscroll-behavior: none;
+            position: relative;
+        }
+
+        html::before {
+            content: '';
+            position: fixed;
+            top: -200vh;
+            left: -100vw;
+            width: 300vw;
+            height: 500vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            z-index: -10;
+            pointer-events: none;
+        }
+
+        body {
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            background-size: 100% 100%;
             color: var(--text-primary);
             font-family: 'Inter', sans-serif;
             min-height: 100vh;
             height: 100%;
+            margin: 0;
+            padding: 0;
             overscroll-behavior: none;
+            -webkit-overscroll-behavior: none;
+            overscroll-behavior-y: none;
+            -webkit-overscroll-behavior-y: none;
             -webkit-tap-highlight-color: transparent;
             overflow-x: hidden;
+            position: relative;
         }
 
-        html {
-            height: 100%;
+        body::before {
+            content: '';
+            position: fixed;
+            top: -200vh;
+            left: -100vw;
+            width: 300vw;
+            height: 500vh;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            background-attachment: fixed;
+            z-index: -5;
+            pointer-events: none;
+        }
+
+        /* Дополнительная защита для всех мобильных */
+        @media (hover: none) and (pointer: coarse) {
+            html, body {
+                overscroll-behavior: contain;
+                -webkit-overscroll-behavior: contain;
+            }
         }
 
         #floating-objects {
@@ -88,6 +131,16 @@
 
         .floating-object.huge {
             font-size: 58px;
+            filter: blur(0px);
+        }
+
+        .floating-object.gigantic {
+            font-size: 90px;
+            filter: blur(0px);
+        }
+
+        .floating-object.massive {
+            font-size: 120px;
             filter: blur(0px);
         }
 
@@ -315,21 +368,22 @@
             font-size: 0.85rem;
             line-height: 1.2;
             transition: all 0.3s ease;
-            display: block;
-            min-height: 70px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 70px;
             width: 100%;
+            max-width: none;
+            min-width: 0;
             box-sizing: border-box;
-            position: relative;
+            overflow: hidden;
+            word-wrap: break-word;
         }
 
         .choice-btn .choice-icon {
-            display: block;
             font-size: 1.4rem;
-            margin-bottom: 4px;
-        }
-
-        .choice-btn span:last-child {
-            display: block;
+            margin-bottom: 2px;
         }
 
         .choice-btn:hover {
@@ -447,16 +501,16 @@
             }
             
             .choice-btn {
-                padding: 10px 4px;
+                padding: 8px 4px;
                 font-size: 0.75rem;
-                min-height: 60px;
+                height: 60px;
                 width: 100%;
                 box-sizing: border-box;
             }
 
             .choice-btn .choice-icon {
                 font-size: 1.2rem;
-                margin-bottom: 3px;
+                margin-bottom: 2px;
             }
 
 
@@ -477,16 +531,16 @@
             }
 
             .choice-btn {
-                padding: 8px 3px;
+                padding: 6px 3px;
                 font-size: 0.7rem;
-                min-height: 55px;
+                height: 55px;
                 width: 100%;
                 box-sizing: border-box;
             }
 
             .choice-btn .choice-icon {
-                font-size: 1.1rem;
-                margin-bottom: 2px;
+                font-size: 1.0rem;
+                margin-bottom: 1px;
             }
         }
     </style>
@@ -725,7 +779,7 @@
                 const color = colorPalette[Math.floor(Math.random() * colorPalette.length)];
                 
                 // Случайный размер с эффектом глубины
-                const sizes = ['tiny', 'far', 'small', 'medium', 'large', 'huge'];
+                const sizes = ['tiny', 'far', 'small', 'medium', 'large', 'huge', 'gigantic', 'massive'];
                 const size = sizes[Math.floor(Math.random() * sizes.length)];
                 
                 object.className = `floating-object ${size}`;
@@ -746,10 +800,46 @@
                 }, 24000);
             }
 
+            // Функция для заполнения всего экрана объектами
+            function initializeFloatingObjects() {
+                // Создаем объекты по всей высоте экрана
+                for (let i = 0; i < 25; i++) {
+                    const object = document.createElement('div');
+                    const emoji = floatingEmojis[Math.floor(Math.random() * floatingEmojis.length)];
+                    const color = colorPalette[Math.floor(Math.random() * colorPalette.length)];
+                    
+                    const sizes = ['tiny', 'far', 'small', 'medium', 'large', 'huge', 'gigantic', 'massive'];
+                    const size = sizes[Math.floor(Math.random() * sizes.length)];
+                    
+                    object.className = `floating-object ${size}`;
+                    object.innerHTML = emoji;
+                    object.style.left = Math.random() * 100 + '%';
+                    object.style.color = color;
+                    
+                    // Случайная фаза анимации от 0% до 100%
+                    const animationPhase = Math.random();
+                    object.style.animationDelay = -(Math.random() * 22) + 's'; // Отрицательная задержка = уже запущенная анимация
+                    object.style.animationDuration = (14 + Math.random() * 8) + 's';
+                    
+                    // Случайное движение по X
+                    const drift = (Math.random() - 0.5) * 100;
+                    object.style.setProperty('--drift-x', drift + 'px');
+                    
+                    document.getElementById('floating-objects').appendChild(object);
+
+                    setTimeout(() => {
+                        object.remove();
+                    }, 24000 + Math.random() * 12000);
+                }
+            }
+
+            // Заполняем экран сразу
+            initializeFloatingObjects();
+
             // Create objects periodically
             setInterval(createFloatingObject, 1800);
-            for (let i = 0; i < 12; i++) {
-                setTimeout(createFloatingObject, i * 400);
+            for (let i = 0; i < 8; i++) {
+                setTimeout(createFloatingObject, i * 600);
             }
 
             // Form data
