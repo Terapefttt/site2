@@ -627,7 +627,7 @@
             </h2>
             
             <div class="form-group">
-                <label class="form-label">Поведение персонажа</label>
+                <label class="form-label">Как ведёт себя персонаж</label>
                 <div class="choice-grid three-items">
                     <button class="choice-btn" data-value="leads" data-group="involvement">
                         <span class="choice-icon">🏃‍♂️</span>
@@ -717,17 +717,35 @@
             </h2>
             
             <div class="form-group">
+                <label class="form-label">Инициативность персонажа</label>
+                <div class="choice-grid three-items">
+                    <button class="choice-btn" data-value="pulls" data-group="initiative">
+                        <span class="choice-icon">🚀</span>
+                        <span>Тянет за собой</span>
+                    </button>
+                    <button class="choice-btn selected" data-value="balance" data-group="initiative">
+                        <span class="choice-icon">⚖️</span>
+                        <span>Баланс</span>
+                    </button>
+                    <button class="choice-btn" data-value="reacts" data-group="initiative">
+                        <span class="choice-icon">🤝</span>
+                        <span>Реагирует на тебя</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="form-group">
                 <label class="form-label">Уровень романтики</label>
                 <div class="choice-grid three-items">
                     <button class="choice-btn" data-value="light" data-group="romance">
                         <span class="choice-icon">🌸</span>
                         <span>Лёгкий</span>
                     </button>
-                    <button class="choice-btn" data-value="medium" data-group="romance">
+                    <button class="choice-btn selected" data-value="medium" data-group="romance">
                         <span class="choice-icon">💕</span>
                         <span>Средний</span>
                     </button>
-                    <button class="choice-btn selected" data-value="maximum" data-group="romance">
+                    <button class="choice-btn" data-value="maximum" data-group="romance">
                         <span class="choice-icon">❤️‍🔥</span>
                         <span>Максимальный</span>
                     </button>
@@ -875,16 +893,6 @@
 
 
 
-            // API Configuration 
-            const API_BASE_URL = 'http://172.16.9.1:8080';  // IP вашего сервера
-            
-            // Получение данных пользователя при загрузке
-            let currentUser = null;
-            if (window.Telegram && window.Telegram.WebApp) {
-                currentUser = window.Telegram.WebApp.initDataUnsafe.user;
-                console.log('Текущий пользователь:', currentUser);
-            }
-
             // Save button
             document.getElementById('save-settings').addEventListener('click', async () => {
                 const saveBtn = document.getElementById('save-settings');
@@ -894,65 +902,35 @@
                 saveBtn.style.opacity = '0.7';
                 
                 try {
-                    // Проверяем авторизацию
-                    if (!window.Telegram || !window.Telegram.WebApp || !window.Telegram.WebApp.initData) {
-                        throw new Error('Telegram WebApp не инициализирован');
-                    }
+                    // Here you would send the data to your backend
+                    console.log('Saving settings:', formData);
                     
-                    // Подготавливаем данные для отправки
-                    const requestData = {
-                        initData: window.Telegram.WebApp.initData,  // Безопасные данные для проверки
-                        settings: formData
-                    };
+                    // Simulate API call
+                    await new Promise(resolve => setTimeout(resolve, 1500));
                     
-                    console.log('Отправляем настройки:', formData);
-                    console.log('Пользователь:', currentUser?.first_name, '(ID:', currentUser?.id, ')');
-                    
-                    // Отправляем POST запрос на сервер
-                    const response = await fetch(`${API_BASE_URL}/api/settings`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(requestData)
-                    });
-                    
-                    const result = await response.json();
-                    
-                    if (result.success) {
-                        saveBtn.textContent = '✅ Сохранено!';
-                        saveBtn.style.background = 'linear-gradient(45deg, var(--success-color), var(--secondary-color))';
-                        console.log('✅ Настройки успешно сохранены для пользователя:', result.user_id);
-                        
-                        setTimeout(() => {
-                            saveBtn.textContent = originalText;
-                            saveBtn.style.background = 'linear-gradient(45deg, var(--primary-color), var(--secondary-color))';
-                            saveBtn.style.opacity = '1';
-                            
-                            // Close the web app
-                            if (window.Telegram && window.Telegram.WebApp) {
-                                window.Telegram.WebApp.close();
-                            }
-                        }, 2000);
-                    } else {
-                        throw new Error(result.error || 'Неизвестная ошибка сервера');
-                    }
-                    
-                } catch (error) {
-                    console.error('❌ Ошибка сохранения:', error);
-                    saveBtn.textContent = '❌ Ошибка';
-                    saveBtn.style.background = 'linear-gradient(45deg, #ff6b6b, #ee5a52)';
-                    
-                    // Показываем детали ошибки в консоли для отладки
-                    if (error.message.includes('Failed to fetch')) {
-                        console.error('Проверьте что API сервер запущен и доступен по адресу:', API_BASE_URL);
-                    }
+                    saveBtn.textContent = '✅ Сохранено!';
+                    saveBtn.style.background = 'linear-gradient(45deg, var(--success-color), var(--secondary-color))';
                     
                     setTimeout(() => {
                         saveBtn.textContent = originalText;
                         saveBtn.style.background = 'linear-gradient(45deg, var(--primary-color), var(--secondary-color))';
                         saveBtn.style.opacity = '1';
-                    }, 3000);
+                        
+                        // Close the web app
+                        if (window.Telegram && window.Telegram.WebApp) {
+                            window.Telegram.WebApp.close();
+                        }
+                    }, 2000);
+                    
+                } catch (error) {
+                    saveBtn.textContent = '❌ Ошибка';
+                    saveBtn.style.background = 'linear-gradient(45deg, #ff6b6b, #ee5a52)';
+                    
+                    setTimeout(() => {
+                        saveBtn.textContent = originalText;
+                        saveBtn.style.background = 'linear-gradient(45deg, var(--primary-color), var(--secondary-color))';
+                        saveBtn.style.opacity = '1';
+                    }, 2000);
                 }
             });
 
