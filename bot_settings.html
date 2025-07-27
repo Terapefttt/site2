@@ -883,7 +883,7 @@
 
 
             // API Configuration 
-            const API_BASE_URL = 'http://172.16.9.1:8080';  // IP вашего сервера
+            const API_BASE_URL = 'http://192.168.31.47:8080';  // IP вашего сервера
             
             // Функции для модального окна ошибок
             function showError(title, details) {
@@ -949,11 +949,25 @@
             // Проверка доступности API сервера при загрузке
             async function checkApiConnection() {
                 try {
-                    const response = await fetch(`${API_BASE_URL}/api/health`);
+                    console.log('🌐 Отправляем тестовый запрос на:', `${API_BASE_URL}/api/health`);
+                    
+                    const response = await fetch(`${API_BASE_URL}/api/health`, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'User-Agent': 'TelegramWebApp-Test'
+                        }
+                    });
+                    
+                    console.log('📡 Ответ сервера:', response.status, response.statusText);
+                    
                     if (response.ok) {
-                        console.log('✅ API сервер доступен');
+                        const data = await response.json();
+                        console.log('✅ API сервер доступен, данные:', data);
                     } else {
-                        throw new Error(`Сервер недоступен (${response.status})`);
+                        const errorText = await response.text();
+                        console.error('❌ Сервер вернул ошибку:', response.status, errorText);
+                        throw new Error(`Сервер недоступен (${response.status}): ${errorText}`);
                     }
                 } catch (error) {
                     console.error('❌ API сервер недоступен:', error);
@@ -968,10 +982,54 @@
                 }
             }
 
-            // Проверяем подключение при загрузке (только если Telegram WebApp работает)
-            if (window.Telegram && window.Telegram.WebApp) {
-                checkApiConnection();
+            // Тестовый POST запрос с фейковыми данными
+            async function testPostRequest() {
+                try {
+                    console.log('🧪 Отправляем тестовый POST запрос...');
+                    
+                    const testData = {
+                        initData: 'test_data_from_webpage',
+                        settings: {
+                            characterName: 'Тестовый персонаж',
+                            messageLength: 'medium',
+                            romance: 'maximum'
+                        }
+                    };
+                    
+                    const response = await fetch(`${API_BASE_URL}/api/settings`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'User-Agent': 'TelegramWebApp-Test'
+                        },
+                        body: JSON.stringify(testData)
+                    });
+                    
+                    console.log('📡 POST ответ сервера:', response.status, response.statusText);
+                    
+                    if (response.ok) {
+                        const result = await response.json();
+                        console.log('✅ Тестовый POST успешен:', result);
+                    } else {
+                        const errorText = await response.text();
+                        console.error('❌ POST ошибка:', response.status, errorText);
+                    }
+                } catch (error) {
+                    console.error('❌ Тестовый POST не удался:', error);
+                }
             }
+
+            // Проверяем подключение при загрузке
+            setTimeout(() => {
+                console.log('🚀 Запускаем проверку соединения...');
+                checkApiConnection();
+                
+                // Через 2 секунды тестовый POST запрос
+                setTimeout(() => {
+                    console.log('🚀 Запускаем тестовый POST запрос...');
+                    testPostRequest();
+                }, 2000);
+            }, 1000);
 
             // Save button
             document.getElementById('save-settings').addEventListener('click', async () => {
