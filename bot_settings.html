@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Настройки Персонажа</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="config.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -406,7 +407,7 @@
         .choice-btn.selected[data-group="secondaryCharacters"] {
             background: linear-gradient(45deg, #ff8e8e, #ffa8a8);
         }
-        .choice-btn.selected[data-group="involvement"] {
+        .choice-btn.selected[data-group="userActivity"] {
             background: linear-gradient(45deg, #ffa8a8, #ffc2c2);
         }
         .choice-btn.selected[data-group="plotPredictability"] {
@@ -415,7 +416,7 @@
         .choice-btn.selected[data-group="plotIntensity"] {
             background: linear-gradient(45deg, #ffdbdb, #4ecdc4);
         }
-        .choice-btn.selected[data-group="initiative"] {
+        .choice-btn.selected[data-group="characterBehavior"] {
             background: linear-gradient(45deg, #4ecdc4, #6dd4cd);
         }
         .choice-btn.selected[data-group="romance"] {
@@ -619,7 +620,7 @@
             </div>
         </div>
 
-        <!-- Вовлечённость -->
+        <!-- Степень вовлечённости -->
         <div class="card">
             <h2 class="card-title">
                 <span class="card-icon">🎯</span>
@@ -627,19 +628,19 @@
             </h2>
             
             <div class="form-group">
-                <label class="form-label">Как ведёт себя персонаж</label>
+                <label class="form-label">Ваша активность в диалоге</label>
                 <div class="choice-grid three-items">
-                    <button class="choice-btn" data-value="leads" data-group="involvement">
-                        <span class="choice-icon">🏃‍♂️</span>
-                        <span>Ведёт за собой</span>
-                    </button>
-                    <button class="choice-btn selected" data-value="suggests" data-group="involvement">
-                        <span class="choice-icon">💡</span>
-                        <span>Предлагает варианты</span>
-                    </button>
-                    <button class="choice-btn" data-value="waits" data-group="involvement">
+                    <button class="choice-btn" data-value="passive" data-group="userActivity">
                         <span class="choice-icon">🤔</span>
-                        <span>Ждёт инициативы</span>
+                        <span>Пассивная</span>
+                    </button>
+                    <button class="choice-btn selected" data-value="balanced" data-group="userActivity">
+                        <span class="choice-icon">⚖️</span>
+                        <span>Сбалансированная</span>
+                    </button>
+                    <button class="choice-btn" data-value="active" data-group="userActivity">
+                        <span class="choice-icon">🚀</span>
+                        <span>Активная</span>
                     </button>
                 </div>
             </div>
@@ -717,19 +718,19 @@
             </h2>
             
             <div class="form-group">
-                <label class="form-label">Инициативность персонажа</label>
+                <label class="form-label">Как ведёт себя персонаж</label>
                 <div class="choice-grid three-items">
-                    <button class="choice-btn" data-value="pulls" data-group="initiative">
-                        <span class="choice-icon">🚀</span>
-                        <span>Тянет за собой</span>
+                    <button class="choice-btn" data-value="leads" data-group="characterBehavior">
+                        <span class="choice-icon">🏃‍♂️</span>
+                        <span>Ведёт за собой</span>
                     </button>
-                    <button class="choice-btn selected" data-value="balance" data-group="initiative">
-                        <span class="choice-icon">⚖️</span>
-                        <span>Баланс</span>
+                    <button class="choice-btn selected" data-value="suggests" data-group="characterBehavior">
+                        <span class="choice-icon">💡</span>
+                        <span>Предлагает варианты</span>
                     </button>
-                    <button class="choice-btn" data-value="reacts" data-group="initiative">
-                        <span class="choice-icon">🤝</span>
-                        <span>Реагирует на тебя</span>
+                    <button class="choice-btn" data-value="waits" data-group="characterBehavior">
+                        <span class="choice-icon">🤔</span>
+                        <span>Ждёт инициативы</span>
                     </button>
                 </div>
             </div>
@@ -741,11 +742,11 @@
                         <span class="choice-icon">🌸</span>
                         <span>Лёгкий</span>
                     </button>
-                    <button class="choice-btn selected" data-value="medium" data-group="romance">
+                    <button class="choice-btn" data-value="medium" data-group="romance">
                         <span class="choice-icon">💕</span>
                         <span>Средний</span>
                     </button>
-                    <button class="choice-btn" data-value="maximum" data-group="romance">
+                    <button class="choice-btn selected" data-value="maximum" data-group="romance">
                         <span class="choice-icon">❤️‍🔥</span>
                         <span>Максимальный</span>
                     </button>
@@ -847,14 +848,77 @@
                 characterName: '',
                 messageLength: 'medium',
                 secondaryCharacters: 'default',
-                involvement: 'suggests',
+                userActivity: 'balanced',
                 plotPredictability: 'balanced',
                 plotIntensity: 'default',
                 setting: '',
                 userRole: '',
-                initiative: 'balance',
-                romance: 'medium'
+                characterBehavior: 'suggests',
+                romance: 'maximum'
             };
+
+            // Get user ID from Telegram WebApp
+            let userId = null;
+            if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe) {
+                userId = window.Telegram.WebApp.initDataUnsafe.user?.id;
+            }
+
+            // API Configuration - настройки в config.js
+            const API_BASE_URL = getApiBaseUrl();
+            
+            // Load user settings on page load
+            async function loadUserSettings() {
+                if (!userId) return;
+                
+                try {
+                    const response = await fetch(`${API_BASE_URL}/api/settings/load`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ user_id: userId })
+                    });
+                    
+                    if (response.ok) {
+                        const settings = await response.json();
+                        if (settings.success && settings.data) {
+                            // Update form data with loaded settings
+                            Object.assign(formData, settings.data);
+                            
+                            // Update UI with loaded values
+                            if (settings.data.characterName) {
+                                document.getElementById('character-name').value = settings.data.characterName;
+                            }
+                            if (settings.data.setting) {
+                                document.getElementById('setting').value = settings.data.setting;
+                            }
+                            if (settings.data.userRole) {
+                                document.getElementById('userRole').value = settings.data.userRole;
+                            }
+                            
+                            // Update choice buttons
+                            Object.keys(settings.data).forEach(key => {
+                                if (key !== 'characterName' && key !== 'setting' && key !== 'userRole') {
+                                    const value = settings.data[key];
+                                    if (value) {
+                                        // Remove selected from all buttons in the group
+                                        document.querySelectorAll(`[data-group="${key}"]`).forEach(btn => {
+                                            btn.classList.remove('selected');
+                                        });
+                                        // Add selected to the correct button
+                                        const targetBtn = document.querySelector(`[data-group="${key}"][data-value="${value}"]`);
+                                        if (targetBtn) {
+                                            targetBtn.classList.add('selected');
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error loading settings:', error);
+                }
+            }
 
             // Text inputs
             document.getElementById('character-name').addEventListener('input', (e) => {
@@ -895,6 +959,11 @@
 
             // Save button
             document.getElementById('save-settings').addEventListener('click', async () => {
+                if (!userId) {
+                    alert('Ошибка: не удалось определить пользователя');
+                    return;
+                }
+                
                 const saveBtn = document.getElementById('save-settings');
                 const originalText = saveBtn.textContent;
                 
@@ -902,27 +971,39 @@
                 saveBtn.style.opacity = '0.7';
                 
                 try {
-                    // Here you would send the data to your backend
-                    console.log('Saving settings:', formData);
+                    const response = await fetch(`${API_BASE_URL}/api/settings/save`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            user_id: userId,
+                            settings: formData
+                        })
+                    });
                     
-                    // Simulate API call
-                    await new Promise(resolve => setTimeout(resolve, 1500));
+                    const result = await response.json();
                     
-                    saveBtn.textContent = '✅ Сохранено!';
-                    saveBtn.style.background = 'linear-gradient(45deg, var(--success-color), var(--secondary-color))';
-                    
-                    setTimeout(() => {
-                        saveBtn.textContent = originalText;
-                        saveBtn.style.background = 'linear-gradient(45deg, var(--primary-color), var(--secondary-color))';
-                        saveBtn.style.opacity = '1';
+                    if (result.success) {
+                        saveBtn.textContent = '✅ Сохранено!';
+                        saveBtn.style.background = 'linear-gradient(45deg, var(--success-color), var(--secondary-color))';
                         
-                        // Close the web app
-                        if (window.Telegram && window.Telegram.WebApp) {
-                            window.Telegram.WebApp.close();
-                        }
-                    }, 2000);
+                        setTimeout(() => {
+                            saveBtn.textContent = originalText;
+                            saveBtn.style.background = 'linear-gradient(45deg, var(--primary-color), var(--secondary-color))';
+                            saveBtn.style.opacity = '1';
+                            
+                            // Close the web app
+                            if (window.Telegram && window.Telegram.WebApp) {
+                                window.Telegram.WebApp.close();
+                            }
+                        }, 2000);
+                    } else {
+                        throw new Error(result.error || 'Ошибка сохранения');
+                    }
                     
                 } catch (error) {
+                    console.error('Save error:', error);
                     saveBtn.textContent = '❌ Ошибка';
                     saveBtn.style.background = 'linear-gradient(45deg, #ff6b6b, #ee5a52)';
                     
@@ -959,10 +1040,18 @@
                 }
             });
 
+            // Load user settings after page initialization
+            loadUserSettings();
+
             // Initialize Telegram Web App
             if (window.Telegram && window.Telegram.WebApp) {
                 window.Telegram.WebApp.ready();
                 window.Telegram.WebApp.expand();
+                // Get user ID after Telegram WebApp is ready
+                if (window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.user) {
+                    userId = window.Telegram.WebApp.initDataUnsafe.user.id;
+                    loadUserSettings(); // Reload settings with correct user ID
+                }
             }
         });
     </script>
