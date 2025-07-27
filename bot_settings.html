@@ -546,6 +546,13 @@
     </style>
 </head>
 <body>
+    <!-- User Info в правом верхнем углу -->
+    <div id="user-info" style="position: fixed; top: 10px; right: 10px; background: rgba(0,0,0,0.7); color: white; padding: 8px 12px; border-radius: 8px; font-size: 12px; z-index: 1000; font-family: monospace;">
+        <div>👤 ID: <span id="user-id">Загрузка...</span></div>
+        <div>📛 Имя: <span id="user-name">Загрузка...</span></div>
+        <div>🌐 WebApp: <span id="webapp-status">Проверка...</span></div>
+    </div>
+
     <div id="floating-objects"></div>
 
     <div class="main-container">
@@ -627,7 +634,7 @@
             </h2>
             
             <div class="form-group">
-                <label class="form-label">Как ведёт себя персонаж</label>
+                <label class="form-label">Поведение персонажа</label>
                 <div class="choice-grid three-items">
                     <button class="choice-btn" data-value="leads" data-group="involvement">
                         <span class="choice-icon">🏃‍♂️</span>
@@ -717,35 +724,17 @@
             </h2>
             
             <div class="form-group">
-                <label class="form-label">Инициативность персонажа</label>
-                <div class="choice-grid three-items">
-                    <button class="choice-btn" data-value="pulls" data-group="initiative">
-                        <span class="choice-icon">🚀</span>
-                        <span>Тянет за собой</span>
-                    </button>
-                    <button class="choice-btn selected" data-value="balance" data-group="initiative">
-                        <span class="choice-icon">⚖️</span>
-                        <span>Баланс</span>
-                    </button>
-                    <button class="choice-btn" data-value="reacts" data-group="initiative">
-                        <span class="choice-icon">🤝</span>
-                        <span>Реагирует на тебя</span>
-                    </button>
-                </div>
-            </div>
-
-            <div class="form-group">
                 <label class="form-label">Уровень романтики</label>
                 <div class="choice-grid three-items">
                     <button class="choice-btn" data-value="light" data-group="romance">
                         <span class="choice-icon">🌸</span>
                         <span>Лёгкий</span>
                     </button>
-                    <button class="choice-btn selected" data-value="medium" data-group="romance">
+                    <button class="choice-btn" data-value="medium" data-group="romance">
                         <span class="choice-icon">💕</span>
                         <span>Средний</span>
                     </button>
-                    <button class="choice-btn" data-value="maximum" data-group="romance">
+                    <button class="choice-btn selected" data-value="maximum" data-group="romance">
                         <span class="choice-icon">❤️‍🔥</span>
                         <span>Максимальный</span>
                     </button>
@@ -893,6 +882,97 @@
 
 
 
+            // API Configuration 
+            const API_BASE_URL = 'http://172.16.9.1:8080';  // IP вашего сервера
+            
+            // Функции для модального окна ошибок
+            function showError(title, details) {
+                document.getElementById('error-details').textContent = details;
+                document.getElementById('error-modal').style.display = 'flex';
+            }
+
+            function closeErrorModal() {
+                document.getElementById('error-modal').style.display = 'none';
+            }
+
+            // Получение данных пользователя при загрузке
+            let currentUser = null;
+            let initData = null;
+            
+            function updateUserInfo() {
+                const userIdEl = document.getElementById('user-id');
+                const userNameEl = document.getElementById('user-name');
+                const webappStatusEl = document.getElementById('webapp-status');
+                
+                if (window.Telegram && window.Telegram.WebApp) {
+                    currentUser = window.Telegram.WebApp.initDataUnsafe.user;
+                    initData = window.Telegram.WebApp.initData;
+                    
+                    console.log('🔍 Telegram WebApp данные:');
+                    console.log('- initDataUnsafe:', window.Telegram.WebApp.initDataUnsafe);
+                    console.log('- initData:', initData);
+                    console.log('- user:', currentUser);
+                    
+                    if (currentUser && currentUser.id) {
+                        userIdEl.textContent = currentUser.id;
+                        userNameEl.textContent = currentUser.first_name || 'Неизвестно';
+                        webappStatusEl.textContent = '✅ Работает';
+                        webappStatusEl.style.color = '#4CAF50';
+                    } else {
+                        userIdEl.textContent = 'Не найден';
+                        userNameEl.textContent = 'Не найдено';
+                        webappStatusEl.textContent = '❌ Нет данных';
+                        webappStatusEl.style.color = '#f44336';
+                        
+                        showError('Нет данных пользователя', 
+                            'Telegram WebApp найден, но данные пользователя не получены.\n\n' +
+                            'Возможные причины:\n' +
+                            '• Страница открыта в обычном браузере\n' +
+                            '• Mini App настроен неправильно\n' +
+                            '• Проблемы с Telegram WebApp API\n\n' +
+                            'Попробуйте закрыть и снова открыть через Telegram.'
+                        );
+                    }
+                } else {
+                    userIdEl.textContent = 'WebApp недоступен';
+                    userNameEl.textContent = 'WebApp недоступен';
+                    webappStatusEl.textContent = '❌ Не найден';
+                    webappStatusEl.style.color = '#f44336';
+                    
+                    showError('Ошибка инициализации', 'Telegram WebApp не найден.\nОткройте эту страницу через Telegram Mini App.');
+                }
+            }
+            
+            // Обновляем информацию о пользователе
+            updateUserInfo();
+
+            // Проверка доступности API сервера при загрузке
+            async function checkApiConnection() {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/api/health`);
+                    if (response.ok) {
+                        console.log('✅ API сервер доступен');
+                    } else {
+                        throw new Error(`Сервер недоступен (${response.status})`);
+                    }
+                } catch (error) {
+                    console.error('❌ API сервер недоступен:', error);
+                    showError('Проблема с подключением', 
+                        `Не удается подключиться к API серверу:\n${API_BASE_URL}\n\n` +
+                        `Ошибка: ${error.message}\n\n` +
+                        'Убедитесь что:\n' +
+                        '• API сервер запущен\n' +
+                        '• IP адрес правильный\n' +
+                        '• Нет блокировки файрволом'
+                    );
+                }
+            }
+
+            // Проверяем подключение при загрузке (только если Telegram WebApp работает)
+            if (window.Telegram && window.Telegram.WebApp) {
+                checkApiConnection();
+            }
+
             // Save button
             document.getElementById('save-settings').addEventListener('click', async () => {
                 const saveBtn = document.getElementById('save-settings');
@@ -902,35 +982,101 @@
                 saveBtn.style.opacity = '0.7';
                 
                 try {
-                    // Here you would send the data to your backend
-                    console.log('Saving settings:', formData);
+                    // Подробная проверка данных
+                    console.log('🔍 Проверка данных перед отправкой:');
+                    console.log('- window.Telegram:', !!window.Telegram);
+                    console.log('- window.Telegram.WebApp:', !!window.Telegram?.WebApp);
+                    console.log('- initData:', initData);
+                    console.log('- currentUser:', currentUser);
                     
-                    // Simulate API call
-                    await new Promise(resolve => setTimeout(resolve, 1500));
+                    if (!window.Telegram || !window.Telegram.WebApp) {
+                        throw new Error('Telegram WebApp не найден');
+                    }
                     
-                    saveBtn.textContent = '✅ Сохранено!';
-                    saveBtn.style.background = 'linear-gradient(45deg, var(--success-color), var(--secondary-color))';
+                    if (!initData) {
+                        throw new Error('initData пустой - возможно открыто в обычном браузере');
+                    }
                     
-                    setTimeout(() => {
-                        saveBtn.textContent = originalText;
-                        saveBtn.style.background = 'linear-gradient(45deg, var(--primary-color), var(--secondary-color))';
-                        saveBtn.style.opacity = '1';
+                    if (!currentUser || !currentUser.id) {
+                        throw new Error('Данные пользователя не получены от Telegram');
+                    }
+                    
+                    // Подготавливаем данные для отправки
+                    const requestData = {
+                        initData: initData,  // Безопасные данные для проверки
+                        settings: formData
+                    };
+                    
+                    console.log('📤 Отправляем настройки:');
+                    console.log('- Пользователь:', currentUser.first_name, '(ID:', currentUser.id, ')');
+                    console.log('- Настройки:', formData);
+                    console.log('- initData длина:', initData.length, 'символов');
+                    
+                    // Отправляем POST запрос на сервер
+                    const response = await fetch(`${API_BASE_URL}/api/settings`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(requestData)
+                    });
+                    
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        throw new Error(`HTTP ${response.status}: ${errorText}`);
+                    }
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        saveBtn.textContent = '✅ Сохранено!';
+                        saveBtn.style.background = 'linear-gradient(45deg, var(--success-color), var(--secondary-color))';
+                        console.log('✅ Настройки успешно сохранены для пользователя:', result.user_id);
                         
-                        // Close the web app
-                        if (window.Telegram && window.Telegram.WebApp) {
-                            window.Telegram.WebApp.close();
-                        }
-                    }, 2000);
+                        setTimeout(() => {
+                            saveBtn.textContent = originalText;
+                            saveBtn.style.background = 'linear-gradient(45deg, var(--primary-color), var(--secondary-color))';
+                            saveBtn.style.opacity = '1';
+                            
+                            // Close the web app
+                            if (window.Telegram && window.Telegram.WebApp) {
+                                window.Telegram.WebApp.close();
+                            }
+                        }, 2000);
+                    } else {
+                        throw new Error(result.error || 'Неизвестная ошибка сервера');
+                    }
                     
                 } catch (error) {
+                    console.error('❌ Ошибка сохранения:', error);
                     saveBtn.textContent = '❌ Ошибка';
                     saveBtn.style.background = 'linear-gradient(45deg, #ff6b6b, #ee5a52)';
                     
+                    // Показываем детальную ошибку пользователю
+                    let errorDetails = `Ошибка: ${error.message}\n\n`;
+                    
+                    if (error.message.includes('Failed to fetch')) {
+                        errorDetails += `API сервер недоступен по адресу: ${API_BASE_URL}\n\n`;
+                        errorDetails += 'Возможные причины:\n';
+                        errorDetails += '• Сервер не запущен\n';
+                        errorDetails += '• Неверный IP адрес\n';
+                        errorDetails += '• Блокировка файрволом\n';
+                        errorDetails += '• Проблемы с сетью';
+                    } else if (error.message.includes('HTTP')) {
+                        errorDetails += 'Сервер вернул ошибку.\n';
+                        errorDetails += 'Проверьте логи API сервера.';
+                    } else if (error.message.includes('WebApp не инициализирован')) {
+                        errorDetails += 'Откройте страницу через Telegram Mini App,\n';
+                        errorDetails += 'а не в обычном браузере.';
+                    }
+                    
+                    showError('Ошибка сохранения настроек', errorDetails);
+                    
                     setTimeout(() => {
                         saveBtn.textContent = originalText;
                         saveBtn.style.background = 'linear-gradient(45deg, var(--primary-color), var(--secondary-color))';
                         saveBtn.style.opacity = '1';
-                    }, 2000);
+                    }, 3000);
                 }
             });
 
