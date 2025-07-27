@@ -407,7 +407,7 @@
         .choice-btn.selected[data-group="secondaryCharacters"] {
             background: linear-gradient(45deg, #ff8e8e, #ffa8a8);
         }
-        .choice-btn.selected[data-group="userActivity"] {
+        .choice-btn.selected[data-group="involvement"] {
             background: linear-gradient(45deg, #ffa8a8, #ffc2c2);
         }
         .choice-btn.selected[data-group="plotPredictability"] {
@@ -416,11 +416,8 @@
         .choice-btn.selected[data-group="plotIntensity"] {
             background: linear-gradient(45deg, #ffdbdb, #4ecdc4);
         }
-        .choice-btn.selected[data-group="characterBehavior"] {
-            background: linear-gradient(45deg, #4ecdc4, #6dd4cd);
-        }
         .choice-btn.selected[data-group="romance"] {
-            background: linear-gradient(45deg, #6dd4cd, #8bdcd6);
+            background: linear-gradient(45deg, #4ecdc4, #6dd4cd);
         }
 
 
@@ -620,31 +617,7 @@
             </div>
         </div>
 
-        <!-- Степень вовлечённости -->
-        <div class="card">
-            <h2 class="card-title">
-                <span class="card-icon">🎯</span>
-                Степень вовлечённости
-            </h2>
-            
-            <div class="form-group">
-                <label class="form-label">Ваша активность в диалоге</label>
-                <div class="choice-grid three-items">
-                    <button class="choice-btn" data-value="passive" data-group="userActivity">
-                        <span class="choice-icon">🤔</span>
-                        <span>Пассивная</span>
-                    </button>
-                    <button class="choice-btn selected" data-value="balanced" data-group="userActivity">
-                        <span class="choice-icon">⚖️</span>
-                        <span>Сбалансированная</span>
-                    </button>
-                    <button class="choice-btn" data-value="active" data-group="userActivity">
-                        <span class="choice-icon">🚀</span>
-                        <span>Активная</span>
-                    </button>
-                </div>
-            </div>
-        </div>
+        <!-- Степень вовлечённости (пустая карточка убрана) -->
 
         <!-- Сюжет -->
         <div class="card">
@@ -720,15 +693,15 @@
             <div class="form-group">
                 <label class="form-label">Как ведёт себя персонаж</label>
                 <div class="choice-grid three-items">
-                    <button class="choice-btn" data-value="leads" data-group="characterBehavior">
+                    <button class="choice-btn" data-value="leads" data-group="involvement">
                         <span class="choice-icon">🏃‍♂️</span>
                         <span>Ведёт за собой</span>
                     </button>
-                    <button class="choice-btn selected" data-value="suggests" data-group="characterBehavior">
+                    <button class="choice-btn selected" data-value="suggests" data-group="involvement">
                         <span class="choice-icon">💡</span>
                         <span>Предлагает варианты</span>
                     </button>
-                    <button class="choice-btn" data-value="waits" data-group="characterBehavior">
+                    <button class="choice-btn" data-value="waits" data-group="involvement">
                         <span class="choice-icon">🤔</span>
                         <span>Ждёт инициативы</span>
                     </button>
@@ -760,8 +733,15 @@
     </button>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // Floating objects animation
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Инициализация Telegram Web App
+            const telegramUser = CharmyConfig.telegram.getUserData();
+            const isInitialized = CharmyConfig.telegram.init();
+            
+            CharmyConfig.utils.log('Mini-app запущена', 'info');
+            CharmyConfig.utils.log(`Telegram данные: ${telegramUser ? 'получены' : 'недоступны'}`, 'info');
+            
+            // Floating objects animation (сохранено как есть)
             const floatingEmojis = [
                 '💕', '✨', '🌸', '🦋', '💫', '🌺', '🌷', '🌻', 
                 '🌹', '💖', '💝', '🎀', '👑', '💍', '🔮', '🌙',
@@ -779,7 +759,6 @@
                 const emoji = floatingEmojis[Math.floor(Math.random() * floatingEmojis.length)];
                 const color = colorPalette[Math.floor(Math.random() * colorPalette.length)];
                 
-                // Случайный размер с эффектом глубины
                 const sizes = ['tiny', 'far', 'small', 'medium', 'large', 'huge', 'gigantic', 'massive'];
                 const size = sizes[Math.floor(Math.random() * sizes.length)];
                 
@@ -790,7 +769,6 @@
                 object.style.animationDelay = Math.random() * 6 + 's';
                 object.style.animationDuration = (14 + Math.random() * 8) + 's';
                 
-                // Добавляем случайное движение по X
                 const drift = (Math.random() - 0.5) * 100;
                 object.style.setProperty('--drift-x', drift + 'px');
                 
@@ -801,9 +779,7 @@
                 }, 24000);
             }
 
-            // Функция для заполнения всего экрана объектами
             function initializeFloatingObjects() {
-                // Создаем объекты по всей высоте экрана
                 for (let i = 0; i < 25; i++) {
                     const object = document.createElement('div');
                     const emoji = floatingEmojis[Math.floor(Math.random() * floatingEmojis.length)];
@@ -817,12 +793,9 @@
                     object.style.left = Math.random() * 100 + '%';
                     object.style.color = color;
                     
-                    // Случайная фаза анимации от 0% до 100%
-                    const animationPhase = Math.random();
-                    object.style.animationDelay = -(Math.random() * 22) + 's'; // Отрицательная задержка = уже запущенная анимация
+                    object.style.animationDelay = -(Math.random() * 22) + 's';
                     object.style.animationDuration = (14 + Math.random() * 8) + 's';
                     
-                    // Случайное движение по X
                     const drift = (Math.random() - 0.5) * 100;
                     object.style.setProperty('--drift-x', drift + 'px');
                     
@@ -834,106 +807,104 @@
                 }
             }
 
-            // Заполняем экран сразу
+            // Запуск анимации
             initializeFloatingObjects();
-
-            // Create objects periodically
             setInterval(createFloatingObject, 1800);
             for (let i = 0; i < 8; i++) {
                 setTimeout(createFloatingObject, i * 600);
             }
 
-            // Form data
-            const formData = {
-                characterName: '',
-                messageLength: 'medium',
-                secondaryCharacters: 'default',
-                userActivity: 'balanced',
-                plotPredictability: 'balanced',
-                plotIntensity: 'default',
-                setting: '',
-                userRole: '',
-                characterBehavior: 'suggests',
-                romance: 'maximum'
-            };
+            // Form data с настройками по умолчанию
+            let formData = { ...CharmyConfig.settings.defaults };
 
-            // Get user ID from Telegram WebApp
-            let userId = null;
-            if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe) {
-                userId = window.Telegram.WebApp.initDataUnsafe.user?.id;
-            }
-
-            // API Configuration - настройки в config.js
-            const API_BASE_URL = getApiBaseUrl();
-            
-            // Load user settings on page load
-            async function loadUserSettings() {
-                if (!userId) return;
+            // Функция для отображения настроек в UI
+            function displaySettings(settings) {
+                // Заполняем текстовые поля
+                document.getElementById('character-name').value = settings.characterName || '';
+                document.getElementById('setting').value = settings.setting || '';
+                document.getElementById('userRole').value = settings.userRole || '';
                 
-                try {
-                    const response = await fetch(`${API_BASE_URL}/api/settings/load`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ user_id: userId })
-                    });
-                    
-                    if (response.ok) {
-                        const settings = await response.json();
-                        if (settings.success && settings.data) {
-                            // Update form data with loaded settings
-                            Object.assign(formData, settings.data);
-                            
-                            // Update UI with loaded values
-                            if (settings.data.characterName) {
-                                document.getElementById('character-name').value = settings.data.characterName;
-                            }
-                            if (settings.data.setting) {
-                                document.getElementById('setting').value = settings.data.setting;
-                            }
-                            if (settings.data.userRole) {
-                                document.getElementById('userRole').value = settings.data.userRole;
-                            }
-                            
-                            // Update choice buttons
-                            Object.keys(settings.data).forEach(key => {
-                                if (key !== 'characterName' && key !== 'setting' && key !== 'userRole') {
-                                    const value = settings.data[key];
-                                    if (value) {
-                                        // Remove selected from all buttons in the group
-                                        document.querySelectorAll(`[data-group="${key}"]`).forEach(btn => {
-                                            btn.classList.remove('selected');
-                                        });
-                                        // Add selected to the correct button
-                                        const targetBtn = document.querySelector(`[data-group="${key}"][data-value="${value}"]`);
-                                        if (targetBtn) {
-                                            targetBtn.classList.add('selected');
-                                        }
-                                    }
-                                }
+                // Устанавливаем выбранные кнопки
+                Object.keys(settings).forEach(settingKey => {
+                    const value = settings[settingKey];
+                    if (typeof value === 'string' && value !== '') {
+                        // Находим соответствующую кнопку
+                        const button = document.querySelector(`[data-value="${value}"]`);
+                        if (button) {
+                            const group = button.dataset.group;
+                            // Убираем selected с других кнопок в группе
+                            document.querySelectorAll(`[data-group="${group}"]`).forEach(btn => {
+                                btn.classList.remove('selected');
                             });
+                            // Устанавливаем selected для текущей кнопки
+                            button.classList.add('selected');
                         }
                     }
-                } catch (error) {
-                    console.error('Error loading settings:', error);
-                }
+                });
+                
+                CharmyConfig.utils.log('Настройки отображены в UI', 'info');
             }
 
-            // Text inputs
+            // Функция для показа статуса загрузки
+            function showLoadingStatus(message) {
+                const saveBtn = document.getElementById('save-settings');
+                CharmyConfig.utils.showLoading(saveBtn, message);
+            }
+
+            function hideLoadingStatus() {
+                const saveBtn = document.getElementById('save-settings');
+                CharmyConfig.utils.hideLoading(saveBtn);
+            }
+
+            // Загрузка существующих настроек
+            if (telegramUser && telegramUser.user_id) {
+                showLoadingStatus('📥 Загружаем настройки...');
+                
+                try {
+                    const response = await CharmyConfig.network.loadUserSettings(telegramUser);
+                    
+                    if (response.success) {
+                        formData = { ...formData, ...response.data.settings };
+                        displaySettings(formData);
+                        CharmyConfig.utils.log('Настройки загружены успешно', 'info');
+                        
+                        if (response.data.has_existing_settings) {
+                            CharmyConfig.telegram.showAlert('Загружены ваши сохранённые настройки!');
+                        }
+                    } else {
+                        CharmyConfig.utils.log(`Ошибка загрузки: ${response.error}`, 'warn');
+                        displaySettings(formData); // Показать defaults
+                    }
+                } catch (error) {
+                    CharmyConfig.utils.log(`Критическая ошибка загрузки: ${error.message}`, 'error');
+                    displaySettings(formData); // Показать defaults
+                } finally {
+                    hideLoadingStatus();
+                }
+            } else {
+                // Если нет Telegram данных, показываем настройки по умолчанию
+                displaySettings(formData);
+                CharmyConfig.utils.log('Используются настройки по умолчанию', 'warn');
+            }
+
+            // Text inputs обработчики
+            const debouncedUpdate = CharmyConfig.utils.debounce((field, value) => {
+                formData[field] = value;
+            }, 300);
+
             document.getElementById('character-name').addEventListener('input', (e) => {
-                formData.characterName = e.target.value;
+                debouncedUpdate('characterName', e.target.value);
             });
 
             document.getElementById('setting').addEventListener('input', (e) => {
-                formData.setting = e.target.value;
+                debouncedUpdate('setting', e.target.value);
             });
 
             document.getElementById('userRole').addEventListener('input', (e) => {
-                formData.userRole = e.target.value;
+                debouncedUpdate('userRole', e.target.value);
             });
 
-            // Choice buttons
+            // Choice buttons обработчики
             document.querySelectorAll('.choice-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     const clickedBtn = e.target.closest('.choice-btn');
@@ -951,75 +922,60 @@
                         
                         // Update form data
                         formData[group] = value;
+                        CharmyConfig.utils.log(`Настройка изменена: ${group} = ${value}`, 'info');
                     }
                 });
             });
 
-
-
             // Save button
             document.getElementById('save-settings').addEventListener('click', async () => {
-                if (!userId) {
-                    alert('Ошибка: не удалось определить пользователя');
+                const saveBtn = document.getElementById('save-settings');
+                
+                if (!telegramUser || !telegramUser.user_id) {
+                    CharmyConfig.telegram.showAlert('Ошибка: не удалось получить данные пользователя из Telegram');
                     return;
                 }
                 
-                const saveBtn = document.getElementById('save-settings');
-                const originalText = saveBtn.textContent;
-                
-                saveBtn.textContent = '💫 Сохраняем...';
-                saveBtn.style.opacity = '0.7';
+                CharmyConfig.utils.showLoading(saveBtn, '💫 Сохраняем...');
                 
                 try {
-                    const response = await fetch(`${API_BASE_URL}/api/settings/save`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            user_id: userId,
-                            settings: formData
-                        })
-                    });
+                    CharmyConfig.utils.log('Отправка настроек на сервер...', 'info');
                     
-                    const result = await response.json();
+                    const response = await CharmyConfig.network.saveUserSettings(telegramUser, formData);
                     
-                    if (result.success) {
+                    if (response.success) {
                         saveBtn.textContent = '✅ Сохранено!';
                         saveBtn.style.background = 'linear-gradient(45deg, var(--success-color), var(--secondary-color))';
                         
+                        CharmyConfig.utils.log('Настройки сохранены успешно', 'info');
+                        
                         setTimeout(() => {
-                            saveBtn.textContent = originalText;
-                            saveBtn.style.background = 'linear-gradient(45deg, var(--primary-color), var(--secondary-color))';
-                            saveBtn.style.opacity = '1';
-                            
-                            // Close the web app
-                            if (window.Telegram && window.Telegram.WebApp) {
-                                window.Telegram.WebApp.close();
-                            }
+                            CharmyConfig.utils.hideLoading(saveBtn);
+                            // Закрываем Web App
+                            CharmyConfig.telegram.close();
                         }, 2000);
+                        
                     } else {
-                        throw new Error(result.error || 'Ошибка сохранения');
+                        throw new Error(response.error || 'Неизвестная ошибка сервера');
                     }
                     
                 } catch (error) {
-                    console.error('Save error:', error);
+                    CharmyConfig.utils.log(`Ошибка сохранения: ${error.message}`, 'error');
+                    
                     saveBtn.textContent = '❌ Ошибка';
                     saveBtn.style.background = 'linear-gradient(45deg, #ff6b6b, #ee5a52)';
                     
+                    CharmyConfig.telegram.showAlert(`Не удалось сохранить настройки: ${error.message}`);
+                    
                     setTimeout(() => {
-                        saveBtn.textContent = originalText;
-                        saveBtn.style.background = 'linear-gradient(45deg, var(--primary-color), var(--secondary-color))';
-                        saveBtn.style.opacity = '1';
+                        CharmyConfig.utils.hideLoading(saveBtn);
                     }, 2000);
                 }
             });
 
             // Hide keyboard when clicking on empty area
             document.addEventListener('click', (e) => {
-                // Check if click target is not an input field
                 if (!e.target.matches('input, textarea, .choice-btn, button, .card')) {
-                    // Remove focus from any active input
                     const activeElement = document.activeElement;
                     if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
                         activeElement.blur();
@@ -1027,12 +983,10 @@
                 }
             });
 
-            // Also handle touch events for better mobile support
             document.addEventListener('touchstart', (e) => {
                 if (!e.target.matches('input, textarea, .choice-btn, button, .card')) {
                     const activeElement = document.activeElement;
                     if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
-                        // Small delay to allow the touch to register properly
                         setTimeout(() => {
                             activeElement.blur();
                         }, 100);
@@ -1040,19 +994,7 @@
                 }
             });
 
-            // Load user settings after page initialization
-            loadUserSettings();
-
-            // Initialize Telegram Web App
-            if (window.Telegram && window.Telegram.WebApp) {
-                window.Telegram.WebApp.ready();
-                window.Telegram.WebApp.expand();
-                // Get user ID after Telegram WebApp is ready
-                if (window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.user) {
-                    userId = window.Telegram.WebApp.initDataUnsafe.user.id;
-                    loadUserSettings(); // Reload settings with correct user ID
-                }
-            }
+            CharmyConfig.utils.log('Mini-app полностью инициализирована', 'info');
         });
     </script>
 </body>

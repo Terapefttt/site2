@@ -1,0 +1,303 @@
+{
+  "_description": "Расшифровка полей настроек персонажа для БД settings.db",
+  "_version": "1.0",
+  "_last_updated": "2025-01-27",
+  
+  "database_schema": {
+    "table_name": "user_settings",
+    "fields": {
+      "user_id": {
+        "type": "INTEGER",
+        "description": "ID пользователя Telegram",
+        "required": true,
+        "primary_key": true
+      },
+      "character_name": {
+        "type": "TEXT",
+        "description": "Имя персонажа",
+        "max_length": 30,
+        "required": false,
+        "default_value": ""
+      },
+      "message_length": {
+        "type": "TEXT",
+        "description": "Длина сообщений",
+        "required": true,
+        "default_value": "medium"
+      },
+      "secondary_characters": {
+        "type": "TEXT", 
+        "description": "Допуск второстепенных персонажей",
+        "required": true,
+        "default_value": "default"
+      },
+      "involvement": {
+        "type": "TEXT",
+        "description": "Поведение персонажа (как ведёт себя)",
+        "required": true,
+        "default_value": "suggests"
+      },
+      "plot_predictability": {
+        "type": "TEXT",
+        "description": "Предсказуемость сюжета",
+        "required": true,
+        "default_value": "balanced"
+      },
+      "plot_intensity": {
+        "type": "TEXT",
+        "description": "Насыщенность событиями",
+        "required": true,
+        "default_value": "default"
+      },
+      "setting": {
+        "type": "TEXT",
+        "description": "Место действия, сеттинг",
+        "max_length": 150,
+        "required": false,
+        "default_value": ""
+      },
+      "user_role": {
+        "type": "TEXT",
+        "description": "Роль пользователя в истории",
+        "max_length": 100,
+        "required": false,
+        "default_value": ""
+      },
+      "romance_level": {
+        "type": "TEXT",
+        "description": "Уровень романтики",
+        "required": true,
+        "default_value": "maximum"
+      },
+      "created_at": {
+        "type": "TIMESTAMP",
+        "description": "Дата создания настроек",
+        "required": true,
+        "auto_generated": true
+      },
+      "updated_at": {
+        "type": "TIMESTAMP", 
+        "description": "Дата последнего обновления",
+        "required": true,
+        "auto_generated": true
+      }
+    }
+  },
+
+  "field_mappings": {
+    "characterName": {
+      "db_field": "character_name",
+      "description": "Имя персонажа",
+      "type": "string",
+      "validation": {
+        "max_length": 30,
+        "required": false
+      }
+    },
+    "messageLength": {
+      "db_field": "message_length", 
+      "description": "Длина сообщений",
+      "type": "enum",
+      "values": {
+        "short": {
+          "db_value": "short",
+          "display_name": "Короткая",
+          "description": "Краткие ответы (1-2 предложения)"
+        },
+        "medium": {
+          "db_value": "medium", 
+          "display_name": "Средняя",
+          "description": "Умеренные ответы (3-5 предложений)"
+        },
+        "long": {
+          "db_value": "long",
+          "display_name": "Длинная", 
+          "description": "Подробные ответы (6+ предложений)"
+        }
+      }
+    },
+    "secondaryCharacters": {
+      "db_field": "secondary_characters",
+      "description": "Допуск второстепенных персонажей",
+      "type": "enum",
+      "values": {
+        "forbidden": {
+          "db_value": "forbidden",
+          "display_name": "Запрещено",
+          "description": "Только главный персонаж"
+        },
+        "default": {
+          "db_value": "default",
+          "display_name": "По умолчанию",
+          "description": "Умеренное количество второстепенных персонажей"
+        },
+        "more": {
+          "db_value": "more", 
+          "display_name": "Больше",
+          "description": "Активное использование второстепенных персонажей"
+        }
+      }
+    },
+    "involvement": {
+      "db_field": "involvement",
+      "description": "Поведение персонажа",
+      "type": "enum",
+      "values": {
+        "leads": {
+          "db_value": "leads",
+          "display_name": "Ведёт за собой", 
+          "description": "Персонаж активно ведёт сюжет"
+        },
+        "suggests": {
+          "db_value": "suggests",
+          "display_name": "Предлагает варианты",
+          "description": "Персонаж предлагает идеи и направления"
+        },
+        "waits": {
+          "db_value": "waits",
+          "display_name": "Ждёт инициативы",
+          "description": "Персонаж реагирует на действия пользователя"
+        }
+      }
+    },
+    "plotPredictability": {
+      "db_field": "plot_predictability",
+      "description": "Предсказуемость сюжета",
+      "type": "enum", 
+      "values": {
+        "predictable": {
+          "db_value": "predictable",
+          "display_name": "Предсказуемый",
+          "description": "Классические сюжетные линии"
+        },
+        "balanced": {
+          "db_value": "balanced",
+          "display_name": "Баланс",
+          "description": "Смесь предсказуемых и неожиданных поворотов"
+        },
+        "chaotic": {
+          "db_value": "chaotic",
+          "display_name": "Хаотичный",
+          "description": "Неожиданные повороты и сюрпризы"
+        }
+      }
+    },
+    "plotIntensity": {
+      "db_field": "plot_intensity",
+      "description": "Насыщенность событиями",
+      "type": "enum",
+      "values": {
+        "calm": {
+          "db_value": "calm",
+          "display_name": "Спокойный",
+          "description": "Размеренное развитие сюжета"
+        },
+        "default": {
+          "db_value": "default",
+          "display_name": "По умолчанию", 
+          "description": "Умеренная насыщенность событиями"
+        },
+        "intense": {
+          "db_value": "intense",
+          "display_name": "Насыщенный",
+          "description": "Динамичное развитие с множеством событий"
+        }
+      }
+    },
+    "setting": {
+      "db_field": "setting",
+      "description": "Место действия, сеттинг",
+      "type": "string",
+      "validation": {
+        "max_length": 150,
+        "required": false
+      }
+    },
+    "userRole": {
+      "db_field": "user_role",
+      "description": "Роль пользователя в истории", 
+      "type": "string",
+      "validation": {
+        "max_length": 100,
+        "required": false
+      }
+    },
+    "romance": {
+      "db_field": "romance_level",
+      "description": "Уровень романтики",
+      "type": "enum",
+      "values": {
+        "light": {
+          "db_value": "light",
+          "display_name": "Лёгкий",
+          "description": "Минимальная романтика, дружественное общение"
+        },
+        "medium": {
+          "db_value": "medium",
+          "display_name": "Средний",
+          "description": "Умеренная романтика, флирт"
+        },
+        "maximum": {
+          "db_value": "maximum",
+          "display_name": "Максимальный",
+          "description": "Активная романтика, страстное общение"
+        }
+      }
+    }
+  },
+
+  "validation_rules": {
+    "character_name": {
+      "min_length": 0,
+      "max_length": 30,
+      "pattern": "^[\\p{L}\\p{M}\\p{N}\\p{P}\\p{Z}]*$",
+      "description": "Может содержать буквы, цифры, знаки препинания и пробелы"
+    },
+    "setting": {
+      "min_length": 0,
+      "max_length": 150,
+      "pattern": "^[\\p{L}\\p{M}\\p{N}\\p{P}\\p{Z}\\p{S}]*$",
+      "description": "Описание места и времени действия"
+    },
+    "user_role": {
+      "min_length": 0,
+      "max_length": 100, 
+      "pattern": "^[\\p{L}\\p{M}\\p{N}\\p{P}\\p{Z}]*$",
+      "description": "Роль или профессия пользователя в истории"
+    }
+  },
+
+  "api_format": {
+    "request_example": {
+      "user_id": 123456789,
+      "init_data": "auth_data_from_telegram",
+      "settings": {
+        "characterName": "Алиса",
+        "messageLength": "medium",
+        "secondaryCharacters": "default",
+        "involvement": "suggests", 
+        "plotPredictability": "balanced",
+        "plotIntensity": "default",
+        "setting": "Современный университет",
+        "userRole": "Студент",
+        "romance": "maximum"
+      }
+    },
+    "response_example": {
+      "success": true,
+      "message": "Настройки сохранены успешно",
+      "data": {
+        "user_id": 123456789,
+        "updated_fields": ["character_name", "setting", "user_role"],
+        "timestamp": "2025-01-27T10:30:00Z"
+      }
+    }
+  },
+
+  "usage_notes": {
+    "empty_fields": "Если поле не заполнено пользователем, в БД записывается пустая строка",
+    "defaults": "При первом сохранении используются значения по умолчанию",
+    "updates": "При обновлении изменяются только переданные поля",
+    "validation": "Валидация происходит как на клиенте, так и на сервере"
+  }
+} 
